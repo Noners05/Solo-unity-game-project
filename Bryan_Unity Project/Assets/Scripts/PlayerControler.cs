@@ -4,12 +4,14 @@ using UnityEngine.InputSystem;
 public class PlayerControler : MonoBehaviour
 {
     public float speed = 5.0f;
-    public float jumphight = 10f;
-
+    //public float jumphight = 10f;
+    
+    
+    
     PlayerInput playerinput;
     Rigidbody rb;
 
-    Vector3 moveInput;
+    Vector2 moveInput;
 
    
 
@@ -21,18 +23,35 @@ public class PlayerControler : MonoBehaviour
         playerinput = GetComponent<PlayerInput>();
 
         //Setting up new move vectors
-        moveInput = new Vector2();
+        moveInput = Vector2.zero;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 tempMovement = rb.linearVelocity;
+        Vector3 tempMove = rb.linearVelocity;
 
-        rb.linearVelocity = (moveInput x * speed) + (moveinput y * speed) + (moveInput z * speed)
+        tempMove.x = (moveInput.x * speed) * transform.right.x * 2;
+        tempMove.z = (moveInput.y * speed) * transform.forward.z * 2;
+
+       
+        rb.linearVelocity = tempMove;
     }
-}
-public void Move(InputAction CallBackContext context)
-{
- 
+
+
+    public void Move(InputAction.CallbackContext context)
+    {
+        moveInput = context.ReadValue<Vector2>();
+
+    }
+
+    
+    
+
+
+
+
+
+
+
 }
