@@ -10,6 +10,7 @@ public class PlayerControler : MonoBehaviour
     
     PlayerInput playerinput;
     Rigidbody rb;
+    Camera playerCam;
 
     Vector2 moveInput;
 
@@ -22,20 +23,38 @@ public class PlayerControler : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerinput = GetComponent<PlayerInput>();
 
+        playerCam = Camera.main;
+
         //Setting up new move vectors
         moveInput = Vector2.zero;
+
+
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+        Quaternion playerRotation = Quaternion.identity;
+        playerRotation.y = playerCam.transform.rotation.y;
+        playerRotation.w = playerCam.transform.rotation.w;
+        transform.rotation = playerRotation;
+        
+        
         Vector3 tempMove = rb.linearVelocity;
 
-        tempMove.x = (moveInput.x * speed) * transform.right.x * 2;
-        tempMove.z = (moveInput.y * speed) * transform.forward.z * 2;
+        tempMove.x = (moveInput.x * speed);
+        tempMove.z = (moveInput.y * speed);
 
        
-        rb.linearVelocity = tempMove;
+        rb.linearVelocity = (tempMove.x * transform.right) +
+                            (tempMove.y * transform.up) +
+                            (tempMove.z * transform.forward);
+
+
+
+
+
     }
 
 
