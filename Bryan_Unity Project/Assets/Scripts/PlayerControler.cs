@@ -11,6 +11,7 @@ public class PlayerControler : MonoBehaviour
     PlayerInput playerinput;
     Rigidbody rb;
     Camera playerCam;
+    GameObject Currentequipment;
 
     Vector2 moveInput;
 
@@ -22,6 +23,8 @@ public class PlayerControler : MonoBehaviour
         //initializing component data
         rb = GetComponent<Rigidbody>();
         playerinput = GetComponent<PlayerInput>();
+
+        Currentequipment = null;
 
         playerCam = Camera.main;
 
@@ -64,10 +67,35 @@ public class PlayerControler : MonoBehaviour
 
     }
 
-    
-    
+    public void ActivateEquipment()
+    {
+        if (Currentequipment != null)
+        {
+            //do something
 
 
+
+        }
+
+
+    }
+
+
+
+    private void OnTriggerEnter(Collider collision)
+    {
+        if (collision.tag == "Equipment")
+        {
+            
+            Currentequipment = collision.gameObject;
+            collision.gameObject. SetActive(false);
+
+
+        }
+
+
+
+    }
 
 
 
