@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.Assemblies;
 using UnityEngine.InputSystem;
 
 public class PlayerControler : MonoBehaviour
 {
     public float speed = 5.0f;
     //public float jumphight = 10f;
+    public float interactDistance = 5.0f;
     
     
     
@@ -12,9 +14,14 @@ public class PlayerControler : MonoBehaviour
     Rigidbody rb;
     Camera playerCam;
     GameObject Currentequipment;
+    public GameObject pickupObject;
 
     Vector2 moveInput;
 
+    public weapon currentWeapon;
+    public Transform weaponSlot;
+
+    Ray interactRay;
    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -31,7 +38,9 @@ public class PlayerControler : MonoBehaviour
         //Setting up new move vectors
         moveInput = Vector2.zero;
 
-
+        weaponSlot = transform.GetChild(0);
+        
+        interactRay = new Ray(playerCam.transform.position, playerCam.transform.forward);
         
     }
 
@@ -54,8 +63,19 @@ public class PlayerControler : MonoBehaviour
                             (tempMove.y * transform.up) +
                             (tempMove.z * transform.forward);
 
+        interactRay.origin = playerCam.transform.position;
+        interactRay.direction = playerCam.transform.forward;
 
+        if (Physics.Raycast(interactRay, out interactHit, interactDistance))
+        {
+            if (interactHit.collider.tag == "Weapon")
+                pickupObject = interactHit.collider.gameObject;
+        }
 
+        else
+            pickupObject = null;
+
+       
 
 
     }
@@ -98,7 +118,12 @@ public class PlayerControler : MonoBehaviour
     }
 
 
-
+    public void Reload()
+    {
+        if (currentWeapon)
+            if (!currentWeapon.reloading)
+                currentWeapon.reload();
+    }
 
 
 }
