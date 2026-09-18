@@ -126,6 +126,7 @@ public class weapon : MonoBehaviour
     {
         yield return new WaitForSeconds(reloadCooldown);
         reloading = false;
+        canfire = true;
 
     }
 
