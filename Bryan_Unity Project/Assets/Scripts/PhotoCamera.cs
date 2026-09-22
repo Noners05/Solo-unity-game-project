@@ -1,4 +1,4 @@
-public class PhotoCamera : weapon
+public class PhotoCamera : Weapon
 {
 
 

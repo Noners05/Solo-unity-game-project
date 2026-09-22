@@ -8,7 +8,7 @@ public class PlayerControler : MonoBehaviour
     public float speed = 5.0f;
     //public float jumphight = 10f;
     public float interactDistance = 5.0f;
-    
+
     int Health = 1;
     public bool takeDmg = false;
     public float Hazardcooldown = 3f;
@@ -18,11 +18,11 @@ public class PlayerControler : MonoBehaviour
     Rigidbody rb;
     Camera playerCam;
     GameObject Currentequipment;
-    public GameObject pickupObject;
+    public GameObject pickupObj;
 
     Vector2 moveInput;
 
-    public weapon currentWeapon;
+    public Weapon currentWeapon;
     public Transform weaponSlot;
     public bool EnergyDactivated = false;
     public float Speedtimer = 0f;
@@ -46,7 +46,7 @@ public class PlayerControler : MonoBehaviour
         //Setting up new move vectors
         moveInput = Vector2.zero;
 
-       //weaponSlot = transform.GetChild(0);
+        //weaponSlot = transform.GetChild(0);
 
         interactRay = new Ray(playerCam.transform.position, playerCam.transform.forward);
 
@@ -56,22 +56,22 @@ public class PlayerControler : MonoBehaviour
     void Update()
     {
 
-        if(Health <= 0)
+        if (Health <= 0)
             //Die
-          
-        
-        
-        
-        
-        if (EnergyDactivated)
 
-            if (Speedtimer >= Speedboost)
 
-                speed -= Speedboost;
-                EnergyDactivated = false;
+
+
+
+            if (EnergyDactivated)
+
+                if (Speedtimer >= Speedboost)
+
+                    speed -= Speedboost;
+        EnergyDactivated = false;
         Speedtimer += Time.deltaTime;
-        
-   
+
+
         Quaternion playerRotation = Quaternion.identity;
         playerRotation.y = playerCam.transform.rotation.y;
         playerRotation.w = playerCam.transform.rotation.w;
@@ -94,11 +94,11 @@ public class PlayerControler : MonoBehaviour
         if (Physics.Raycast(interactRay, out interactHit, interactDistance))
         {
             if (interactHit.collider.tag == "Weapon")
-                pickupObject = interactHit.collider.gameObject;
+                pickupObj = interactHit.collider.gameObject;
         }
 
         else
-            pickupObject = null;
+            pickupObj = null;
 
 
 
@@ -138,11 +138,11 @@ public class PlayerControler : MonoBehaviour
 
             Currentequipment.SetActive(true);
 
-       
+
 
     }
 
-        
+
 
 
 
@@ -157,7 +157,7 @@ public class PlayerControler : MonoBehaviour
         {
 
             Currentequipment = collision.gameObject;
-            
+
             collision.gameObject.SetActive(false);
 
             collision.gameObject.SetActive(false);
@@ -166,7 +166,7 @@ public class PlayerControler : MonoBehaviour
         }
 
 
-        if(collision.gameObject.tag == "Hazard")
+        if (collision.gameObject.tag == "Hazard")
         {
             Health--;
         }
@@ -174,12 +174,12 @@ public class PlayerControler : MonoBehaviour
 
 
     }
-
+    /*
     IEnumerator damageCooldown()
     {
         takeDmg = true;
 
-        yield return new WaitForSeconds(Hazardcooldown);
+      
 
     }
 
@@ -188,7 +188,7 @@ public class PlayerControler : MonoBehaviour
     {
         
     }
-
+    */
 
 
     public void Reload()
@@ -232,19 +232,66 @@ public class PlayerControler : MonoBehaviour
                     currentWeapon.ammo += currentWeapon.ammoReFill;
                 }
 
-
+                Destroy(collision.gameObject);
             }
 
-           
+
 
 
         }
 
-              
 
-                
+
+
 
     }
+
+    // Interact action
+    public void Interact(InputAction.CallbackContext context)
+    {
+        // If our interact button is active at all
+        if (context.ReadValueAsButton())
+        {
+            // And we have a reference to an object with which to interact
+            if (pickupObj)
+            {
+                // Check if it's a weapon and equip it ONLY if we do not already have a weapon
+                if (pickupObj.tag == "Weapon")
+                {
+                    if (!currentWeapon)
+                    {
+                        pickupObj.GetComponent<Weapon>().equip(this);
+                    }
+                }
+
+
+                // If the interact object is an ammo pickup and you want player to interact with ammo to acquire
+                // uncomment the if statement below
+
+                if (pickupObj.tag == "Ammo")
+                {
+                    Destroy(pickupObj);
+                    if (currentWeapon && currentWeapon.ammo < currentWeapon.maxAmmo)
+                    {
+                        int ammoFill = currentWeapon.maxAmmo - currentWeapon.ammo;
+
+                        if (ammoFill < currentWeapon.ammoReFill)
+                        {
+                            currentWeapon.ammo += ammoFill;
+                        }
+                        else
+                        {
+                            currentWeapon.ammo += currentWeapon.ammoReFill;
+                        }
+                    }
+                }
+
+            }
+            else if (currentWeapon)
+                Reload();
+        }
+    }
+
 
 
 }

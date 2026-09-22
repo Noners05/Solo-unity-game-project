@@ -3,7 +3,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class weapon : MonoBehaviour
+public class Weapon : MonoBehaviour
 {
     PlayerControler player;
 
@@ -125,6 +125,7 @@ public class weapon : MonoBehaviour
     IEnumerator ReloadingCooldown()
     {
         yield return new WaitForSeconds(reloadCooldown);
+        
         reloading = false;
         canfire = true;
 
