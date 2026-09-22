@@ -19,6 +19,7 @@ public class Weapon : MonoBehaviour
     public bool reloading = true;
     public int weaponID;
     public string weaponName;
+    public bool holdToAttack = true;
 
     [header("weapon stats")]
 
@@ -35,7 +36,7 @@ public class Weapon : MonoBehaviour
 
     public int ammo;
     public int maxAmmo;
-    public int ammoReFill;
+    public int ammoRefill;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -46,22 +47,14 @@ public class Weapon : MonoBehaviour
 
    
 
-    public void equip()
+    public void equip(PlayerControler p)
     {
+        player = p;
         player.currentWeapon = this;
 
 
         transform.SetPositionAndRotation(player.weaponSlot.position, player.weaponSlot.rotation);
         transform.SetParent(player.weaponSlot);
-
-    }
-
-
-
-    public void unequip()
-    {
-        player.currentWeapon = null;
-        transform.SetParent(null);
 
     }
    

@@ -1,196 +1,154 @@
 using System.Collections;
+using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assemblies;
 using UnityEngine.InputSystem;
 
 public class PlayerControler : MonoBehaviour
 {
-    public float speed = 5.0f;
-    //public float jumphight = 10f;
-    public float interactDistance = 5.0f;
 
-    int Health = 1;
-    public bool takeDmg = false;
-    public float Hazardcooldown = 3f;
+    public bool isAttacking = false;
+    public bool hazardDamage = false;
+    public float hazardCooldown = 3.0f;
 
+    public int health = 5;
+    public float speed = 5;
+    public float interactDistance = 6;
 
-    PlayerInput playerinput;
-    Rigidbody rb;
+    CinemachinePositionComposer cineCam;
     Camera playerCam;
-    GameObject Currentequipment;
-    public GameObject pickupObj;
-
-    Vector2 moveInput;
+    PlayerInput playerInput;
+    Rigidbody rb;
 
     public Weapon currentWeapon;
     public Transform weaponSlot;
-    public bool EnergyDactivated = false;
-    public float Speedtimer = 0f;
-    public float Speedboost = 8f;
+    public GameObject pickupObj;
+
+    public float speedActivate = 5f;
+    public float speedBoost = 5f;
+    public float speedBoostTimer = 8f;
+
+    public bool speedBoostActivated = false;
+    public GameObject currentEquipment;
 
     Ray interactRay;
     RaycastHit interactHit;
-
+    Vector2 moveInput;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //initializing component data
+
         rb = GetComponent<Rigidbody>();
-        playerinput = GetComponent<PlayerInput>();
-
-        Currentequipment = null;
-
+        playerInput = GetComponent<PlayerInput>();
         playerCam = Camera.main;
+        cineCam = GameObject.Find("CinemachineCamera").GetComponent<CinemachinePositionComposer>();
 
-        //Setting up new move vectors
+
         moveInput = Vector2.zero;
 
-        //weaponSlot = transform.GetChild(0);
-
+       
         interactRay = new Ray(playerCam.transform.position, playerCam.transform.forward);
 
+
+        weaponSlot = transform.GetChild(0);
+
+
+    }
+
+    // Camera rotation code made in fixed update to prevent physics desync
+    private void FixedUpdate()
+    {
+        Quaternion playerRotation = Quaternion.identity;
+        playerRotation.y = playerCam.transform.rotation.y;
+        playerRotation.w = playerCam.transform.rotation.w;
+        transform.rotation = playerRotation;
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        if (Health <= 0)
-            //Die
-
+        // Die
+        if (health <= 0)
 
 
+        { }
+        if (speedBoostActivated)
+        {
+            if (speedBoostTimer >= speedActivate)
+            {
+                speed -= speedBoost;
+                speedBoostActivated = false;
+            }
 
+            speedBoostTimer += Time.deltaTime;
+        }
 
-            if (EnergyDactivated)
-
-                if (Speedtimer >= Speedboost)
-
-                    speed -= Speedboost;
-        EnergyDactivated = false;
-        Speedtimer += Time.deltaTime;
-
-
-        Quaternion playerRotation = Quaternion.identity;
-        playerRotation.y = playerCam.transform.rotation.y;
-        playerRotation.w = playerCam.transform.rotation.w;
-        transform.rotation = playerRotation;
-
-
-        Vector3 tempMove = rb.linearVelocity;
-
-        tempMove.x = (moveInput.x * speed);
-        tempMove.z = (moveInput.y * speed);
-
-
-        rb.linearVelocity = (tempMove.x * transform.right) +
-                            (tempMove.y * transform.up) +
-                            (tempMove.z * transform.forward);
-
+        // Interact Ray update
         interactRay.origin = playerCam.transform.position;
         interactRay.direction = playerCam.transform.forward;
 
+        // Check if interact ray hits an interactable objects.
         if (Physics.Raycast(interactRay, out interactHit, interactDistance))
         {
             if (interactHit.collider.tag == "Weapon")
+            {
+                // Sets reference to interactable object to "pickupObj"
                 pickupObj = interactHit.collider.gameObject;
+            }
+            else
+                pickupObj = null;
         }
-
         else
             pickupObj = null;
+        // If no obj hit or non-interactive obj hit, set pickupObj to null
 
+        // Move code
+        Vector3 tempMove = rb.linearVelocity;
 
+        // Normalize input vector to 3D worldspace direction
+        tempMove.x = (moveInput.x * speed);
+        tempMove.z = (moveInput.y * speed);
 
-
+        // Normalize move vector to be relative to player's forward facing direction 
+        rb.linearVelocity = (tempMove.x * transform.right) +
+                            (tempMove.y * transform.up) +
+                            (tempMove.z * transform.forward);
     }
 
-
+    // Take in move input values
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-
     }
 
     public void ActivateEquipment()
     {
-        if (Currentequipment != null)
+        if (currentEquipment != null)
         {
-            if (Currentequipment.name == "EnergyD")
+            if (currentEquipment.name == "SpeedDrink")
+            {
+                speed += speedBoost;
 
-                speed += Speedboost;
+                speedBoostActivated = true;
 
-            EnergyDactivated = true;
-
-            Currentequipment = null;
-
-
+                currentEquipment = null;
+            }
         }
-
-
     }
-
-
-    public void DropEquipment()
-    {
-        if (Currentequipment != null)
-
-
-            Currentequipment.SetActive(true);
-
-
-
-    }
-
-
-
-
-
-
-
-
-
 
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.tag == "Equipment")
         {
-
-            Currentequipment = collision.gameObject;
-
-            collision.gameObject.SetActive(false);
+            currentEquipment = collision.gameObject;
 
             collision.gameObject.SetActive(false);
-
-
         }
-
-
-        if (collision.gameObject.tag == "Hazard")
-        {
-            Health--;
-        }
-
-
-
-    }
-    /*
-    IEnumerator damageCooldown()
-    {
-        takeDmg = true;
-
-      
-
     }
 
-
-    private void OnCollisionStay(Collision collision)
-    {
-        
-    }
-    */
-
-
+    // If you have a weapon and the weapon isn't reloading, do the thing
     public void Reload()
     {
         if (currentWeapon)
@@ -198,64 +156,33 @@ public class PlayerControler : MonoBehaviour
                 currentWeapon.reload();
     }
 
-
-
-    //public void Interact (InputAction.CallbackContext context);
-
-
-
-
-
-
-
-
-
-
-    private void OnCollisionEnter(Collision collision)
+    // Attack action
+    public void Attack(InputAction.CallbackContext context)
     {
-        int ammoFill = currentWeapon.maxAmmo - currentWeapon.ammo;
-        if (collision.gameObject.tag == "Ammo")
-        {
-
-
-            if (currentWeapon && currentWeapon.ammo < currentWeapon.maxAmmo)
+        if (currentWeapon)
+            if (currentWeapon.holdToAttack)
             {
-
-
-                if (ammoFill < currentWeapon.ammoReFill)
-                {
-                    currentWeapon.ammo += ammoFill;
-
-                }
+                if (context.ReadValueAsButton())
+                    isAttacking = true;
                 else
-                {
-                    currentWeapon.ammo += currentWeapon.ammoReFill;
-                }
-
-                Destroy(collision.gameObject);
+                    isAttacking = false;
             }
-
-
-
-
-        }
-
-
-
+            else if (context.ReadValueAsButton())
+                currentWeapon.fire();
 
 
     }
 
-    // Interact action
+
     public void Interact(InputAction.CallbackContext context)
     {
-        // If our interact button is active at all
+       
         if (context.ReadValueAsButton())
         {
-            // And we have a reference to an object with which to interact
+            
             if (pickupObj)
             {
-                // Check if it's a weapon and equip it ONLY if we do not already have a weapon
+               
                 if (pickupObj.tag == "Weapon")
                 {
                     if (!currentWeapon)
@@ -264,9 +191,7 @@ public class PlayerControler : MonoBehaviour
                     }
                 }
 
-
-                // If the interact object is an ammo pickup and you want player to interact with ammo to acquire
-                // uncomment the if statement below
+               
 
                 if (pickupObj.tag == "Ammo")
                 {
@@ -275,23 +200,86 @@ public class PlayerControler : MonoBehaviour
                     {
                         int ammoFill = currentWeapon.maxAmmo - currentWeapon.ammo;
 
-                        if (ammoFill < currentWeapon.ammoReFill)
+                        if (ammoFill < currentWeapon.ammoRefill)
                         {
                             currentWeapon.ammo += ammoFill;
                         }
                         else
                         {
-                            currentWeapon.ammo += currentWeapon.ammoReFill;
+                            currentWeapon.ammo += currentWeapon.ammoRefill;
                         }
                     }
                 }
-
+                
             }
             else if (currentWeapon)
                 Reload();
+            
+        }
+    }
+  
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        
+        if (collision.gameObject.tag == "Ammo")
+        {
+            if (currentWeapon && currentWeapon.ammo < currentWeapon.maxAmmo)
+            {
+                int ammoFill = currentWeapon.maxAmmo - currentWeapon.ammo;
+
+                if (ammoFill < currentWeapon.ammoRefill)
+                {
+                    currentWeapon.ammo += ammoFill;
+                }
+                else
+                {
+                    currentWeapon.ammo += currentWeapon.ammoRefill;
+                }
+
+                Destroy(collision.gameObject);
+            }
+        }
+       
+        
+        if (collision.gameObject.tag == "Hazard")
+        {
+            health--;
+        }
+    }
+    
+    private void OnCollisionStay(Collision collision)
+    {
+        
+        if (collision.gameObject.tag == "Hazard")
+        {
+            if (!hazardDamage)
+                StartCoroutine("damageCooldown");
         }
     }
 
+    
+    public void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.tag == "Hazard")
+        {
+            if (hazardDamage)
+            {
+                StopCoroutine("damageCooldown");
+                hazardDamage = false;
+            }
+        }
+    }
 
+    
+    IEnumerator damageCooldown()
+    {
+        hazardDamage = true;
 
+        yield return new WaitForSeconds(hazardCooldown);
+
+        health--;
+        hazardDamage = false;
+    }
 }
+    
