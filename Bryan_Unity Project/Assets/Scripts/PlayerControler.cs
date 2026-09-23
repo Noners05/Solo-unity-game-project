@@ -12,6 +12,9 @@ public class PlayerControler : MonoBehaviour
     public bool hazardDamage = false;
     public float hazardCooldown = 3.0f;
 
+    public bool EnemyDmg = false;
+    public float EnemyCooldown = 2f;
+
     public int health = 5;
     public float speed = 5;
     public float interactDistance = 6;
@@ -52,7 +55,7 @@ public class PlayerControler : MonoBehaviour
         interactRay = new Ray(playerCam.transform.position, playerCam.transform.forward);
 
 
-        weaponSlot = transform.GetChild(0);
+        weaponSlot = playerCam.transform.GetChild(0);
 
 
     }
@@ -160,6 +163,7 @@ public class PlayerControler : MonoBehaviour
     public void Attack(InputAction.CallbackContext context)
     {
         if (currentWeapon)
+        {
             if (currentWeapon.holdToAttack)
             {
                 if (context.ReadValueAsButton())
@@ -169,6 +173,7 @@ public class PlayerControler : MonoBehaviour
             }
             else if (context.ReadValueAsButton())
                 currentWeapon.fire();
+        }
 
 
     }
@@ -246,6 +251,10 @@ public class PlayerControler : MonoBehaviour
         {
             health--;
         }
+
+        if (collision.gameObject.tag == "Enemy")
+            health--;
+
     }
     
     private void OnCollisionStay(Collision collision)
@@ -275,11 +284,16 @@ public class PlayerControler : MonoBehaviour
     IEnumerator damageCooldown()
     {
         hazardDamage = true;
+        EnemyDmg = true;
 
         yield return new WaitForSeconds(hazardCooldown);
+        yield return new WaitForSeconds(EnemyCooldown);
 
         health--;
         hazardDamage = false;
+        EnemyDmg = false;
     }
+
+    
 }
     

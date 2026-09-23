@@ -41,6 +41,7 @@ public class Weapon : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        firepoint = transform.GetChild(0);
         firingDirection = Camera.main;
 
     }
@@ -98,7 +99,7 @@ public class Weapon : MonoBehaviour
 
 
 
-        StartCoroutine("ReloadCooldown");
+        StartCoroutine("ReloadingCooldown");
 
     }
 

@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Equipment
   - Weapon
+  - Enemy
+  - Hazard
   layers:
   - Default
   - TransparentFX
