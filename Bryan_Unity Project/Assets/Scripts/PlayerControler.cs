@@ -252,9 +252,6 @@ public class PlayerControler : MonoBehaviour
             health--;
         }
 
-        if (collision.gameObject.tag == "Enemy")
-            health--;
-
     }
     
     private void OnCollisionStay(Collision collision)

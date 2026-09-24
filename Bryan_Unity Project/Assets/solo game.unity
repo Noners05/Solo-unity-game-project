@@ -1901,7 +1901,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &490066630
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2437,6 +2437,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &607611811
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 607611812}
+  m_Layer: 0
+  m_Name: Waypoint
+  m_TagString: Waypoint
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &607611812
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607611811}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -48.11, y: 0.5, z: 189.38}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &650108720
 GameObject:
   m_ObjectHideFlags: 0
@@ -3735,9 +3766,9 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.5
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 7913f886d9bbd5a429af425285703e7c, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: e8bc57290bf447d48b8e2191af1c4a93, type: 2}
   m_BuildHeightMesh: 0
 --- !u!4 &1206433611
 Transform:
@@ -3767,8 +3798,8 @@ GameObject:
   - component: {fileID: 1229934979}
   - component: {fileID: 1229934978}
   - component: {fileID: 1229934977}
-  - component: {fileID: 1229934985}
   - component: {fileID: 1229934984}
+  - component: {fileID: 1229934985}
   m_Layer: 0
   m_Name: Enemy1
   m_TagString: Enemy
@@ -3785,7 +3816,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1229934976}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 1.5
   m_Speed: 5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -3885,7 +3916,7 @@ Transform:
   m_GameObject: {fileID: 1229934976}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -57.73, y: 3.11, z: 117.17598}
+  m_LocalPosition: {x: -48.5, y: 1.94, z: 179.6}
   m_LocalScale: {x: 1, y: 2.7211, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3927,14 +3958,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 1229934976}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 082712b4ef5f4e14594539773005f6f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 2a27f991fc0324c4b88401561f1bbf18, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  health: 3
-  maxHealth: 3
-  detectionRange: 40
-  player: {fileID: 0}
-  agent: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
+  navMeshAgent: {fileID: 1229934977}
+  startWaitTime: 4
+  timeToRotate: 2
+  speedWalk: 6
+  speedRun: 9
+  viewRadius: 15
+  viewAngle: 90
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  meshResolution: 1
+  edgeIterations: 4
+  edgeDistance: 0.5
+  waypoints:
+  - {fileID: 607611812}
 --- !u!1001 &1311750875
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3955,6 +3999,14 @@ PrefabInstance:
       propertyPath: holdToAttack
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4698302484784413232, guid: e8666a1aa8a03244886867a4007b7b87, type: 3}
+      propertyPath: projVelocity
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4698302484784413232, guid: e8666a1aa8a03244886867a4007b7b87, type: 3}
+      propertyPath: reloadCooldown
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4876465871991711056, guid: e8666a1aa8a03244886867a4007b7b87, type: 3}
       propertyPath: m_Name
       value: Weapon
@@ -3973,7 +4025,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8721956152131533677, guid: e8666a1aa8a03244886867a4007b7b87, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.4
+      value: 2.4
       objectReference: {fileID: 0}
     - target: {fileID: 8721956152131533677, guid: e8666a1aa8a03244886867a4007b7b87, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5255,3 +5307,4 @@ SceneRoots:
   - {fileID: 1229934981}
   - {fileID: 1206433611}
   - {fileID: 490066633}
+  - {fileID: 607611812}

@@ -5,6 +5,7 @@ public class Enemy : MonoBehaviour
 {
     public int health = 3;
     public int maxHealth = 3;
+    public float speed = 6.5f;
 
     public float detectionRange = 5;
 
@@ -32,5 +33,11 @@ public class Enemy : MonoBehaviour
             agent.destination = player.transform.position;
         }
 
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == ("Player"))
+            speed = 0;
     }
 }
