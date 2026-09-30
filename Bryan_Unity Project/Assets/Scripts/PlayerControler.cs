@@ -1,6 +1,7 @@
 using System.Collections;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Assemblies;
 using UnityEngine.InputSystem;
@@ -18,6 +19,19 @@ public class PlayerControler : MonoBehaviour
     public int health = 5;
     public float speed = 5;
     public float interactDistance = 6;
+
+    public bool Sprinting = false;
+    public float Stamina = 100f;
+    public float maxStamina = 100f;
+    public float sprintBoost = 2.0f;
+    public float sprintCost = 5f;
+
+    public float sprintCooldown = 2;
+    public float stamRegenTime = 10;
+    public float stamCooldown = 2;
+    public bool canSprint = true;
+    public bool regenStam = false;
+    public bool toggleSprint = true;
 
     CinemachinePositionComposer cineCam;
     Camera playerCam;
@@ -39,7 +53,6 @@ public class PlayerControler : MonoBehaviour
     RaycastHit interactHit;
     Vector2 moveInput;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
 
@@ -51,7 +64,7 @@ public class PlayerControler : MonoBehaviour
 
         moveInput = Vector2.zero;
 
-       
+
         interactRay = new Ray(playerCam.transform.position, playerCam.transform.forward);
 
 
@@ -60,7 +73,6 @@ public class PlayerControler : MonoBehaviour
 
     }
 
-    // Camera rotation code made in fixed update to prevent physics desync
     private void FixedUpdate()
     {
         Quaternion playerRotation = Quaternion.identity;
@@ -69,10 +81,8 @@ public class PlayerControler : MonoBehaviour
         transform.rotation = playerRotation;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Die
         if (health <= 0)
 
 
@@ -88,16 +98,13 @@ public class PlayerControler : MonoBehaviour
             speedBoostTimer += Time.deltaTime;
         }
 
-        // Interact Ray update
         interactRay.origin = playerCam.transform.position;
         interactRay.direction = playerCam.transform.forward;
 
-        // Check if interact ray hits an interactable objects.
         if (Physics.Raycast(interactRay, out interactHit, interactDistance))
         {
             if (interactHit.collider.tag == "Weapon")
             {
-                // Sets reference to interactable object to "pickupObj"
                 pickupObj = interactHit.collider.gameObject;
             }
             else
@@ -105,22 +112,84 @@ public class PlayerControler : MonoBehaviour
         }
         else
             pickupObj = null;
-        // If no obj hit or non-interactive obj hit, set pickupObj to null
 
-        // Move code
         Vector3 tempMove = rb.linearVelocity;
 
-        // Normalize input vector to 3D worldspace direction
         tempMove.x = (moveInput.x * speed);
         tempMove.z = (moveInput.y * speed);
 
-        // Normalize move vector to be relative to player's forward facing direction 
+        if (Sprinting)
+        {
+            if(moveInput.y == 1 && Stamina > 0)
+            {
+                tempMove.z *= sprintBoost;
+
+                Stamina -= sprintCost * Time.deltaTime;
+
+                StopCoroutine("StamCD");
+
+                if(Stamina <= 0)
+                {
+                    canSprint = false;
+                    Sprinting = false;
+                    StartCoroutine("SprintCD");
+                    StartCoroutine("StamCD");
+                }
+            }
+
+            else
+            {
+                if (toggleSprint)
+                {
+                    Sprinting = false;
+                    canSprint = false;
+
+                    StartCoroutine("SprintCD");
+                    StartCoroutine("StamCD");
+                    
+                }
+            }
+        }
+
+        if(!Sprinting)
+        {
+            if (regenStam)
+                Stamina += stamRegenTime * Time.deltaTime;
+
+            if(Stamina >= maxStamina)
+            {
+                Stamina = maxStamina;
+                regenStam = false;
+            }
+        }
+
         rb.linearVelocity = (tempMove.x * transform.right) +
                             (tempMove.y * transform.up) +
                             (tempMove.z * transform.forward);
     }
 
-    // Take in move input values
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if (canSprint)
+        {
+            if (toggleSprint)
+            {
+                Sprinting = !Sprinting;
+            }
+            else
+            {
+                if (toggleSprint)
+
+                    Sprinting = true;
+
+                else
+
+                    Sprinting = false;
+
+            }
+        }
+    }
+
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
@@ -151,7 +220,6 @@ public class PlayerControler : MonoBehaviour
         }
     }
 
-    // If you have a weapon and the weapon isn't reloading, do the thing
     public void Reload()
     {
         if (currentWeapon)
@@ -159,7 +227,6 @@ public class PlayerControler : MonoBehaviour
                 currentWeapon.reload();
     }
 
-    // Attack action
     public void Attack(InputAction.CallbackContext context)
     {
         if (currentWeapon)
@@ -252,6 +319,11 @@ public class PlayerControler : MonoBehaviour
             health--;
         }
 
+        if (gameObject.tag == "Enemy")
+        {
+            health--;
+        }
+        
     }
     
     private void OnCollisionStay(Collision collision)
@@ -281,16 +353,28 @@ public class PlayerControler : MonoBehaviour
     IEnumerator damageCooldown()
     {
         hazardDamage = true;
-        EnemyDmg = true;
+        
 
         yield return new WaitForSeconds(hazardCooldown);
         yield return new WaitForSeconds(EnemyCooldown);
 
         health--;
         hazardDamage = false;
-        EnemyDmg = false;
+        
     }
 
-    
+    IEnumerator SprintCD()
+    {
+        yield return new WaitForSeconds(sprintCooldown);
+
+        canSprint = true;
+    }
+
+    IEnumerator StamCD()
+    {
+        yield return new WaitForSeconds(stamCooldown);
+
+        regenStam = true;
+    }
 }
     

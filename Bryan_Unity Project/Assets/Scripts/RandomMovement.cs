@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI; //important
 
 
-public class RandomMovement : MonoBehaviour //don't forget to change the script name if you haven't
+public class RandomMovement : MonoBehaviour//don't forget to change the script name if you haven't
 {
     public NavMeshAgent agent;
     public float range; //radius of sphere
