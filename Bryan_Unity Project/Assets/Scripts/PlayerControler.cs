@@ -17,6 +17,7 @@ public class PlayerControler : MonoBehaviour
     public float EnemyCooldown = 2f;
 
     public int health = 5;
+    public int maxHealth = 5;
     public float speed = 5;
     public float interactDistance = 6;
 
@@ -70,7 +71,8 @@ public class PlayerControler : MonoBehaviour
 
         weaponSlot = playerCam.transform.GetChild(0);
 
-
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void FixedUpdate()
@@ -87,6 +89,8 @@ public class PlayerControler : MonoBehaviour
 
 
         { }
+       if (currentEquipment)
+       {
         if (speedBoostActivated)
         {
             if (speedBoostTimer >= speedActivate)
@@ -97,7 +101,7 @@ public class PlayerControler : MonoBehaviour
 
             speedBoostTimer += Time.deltaTime;
         }
-
+       }
         interactRay.origin = playerCam.transform.position;
         interactRay.direction = playerCam.transform.forward;
 
