@@ -34,17 +34,13 @@ public class WeepingAngel : MonoBehaviour
             
             if(distance <= catchDistance)
             {
-                player.gameObject.SetActive(false);
-                deathCam.gameObject.SetActive(true);
-                StartCoroutine(killPlayer());
+                
+                gameObject.SetActive(false);
+                DeathEvent.instance.EnableDeathScreen();
             }
         }
     }
-    IEnumerator killPlayer()
-    {
-        yield return new WaitForSeconds(deathCamTime);
-        SceneManager.LoadScene(deathScene);
-    }
+  
 }
 
 

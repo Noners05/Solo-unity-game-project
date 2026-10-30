@@ -5,6 +5,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Assemblies;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerControler : MonoBehaviour
 {
@@ -85,10 +86,8 @@ public class PlayerControler : MonoBehaviour
 
     void Update()
     {
-        if (health <= 0)
-
-
-        { }
+        
+        
        if (currentEquipment)
        {
         if (speedBoostActivated)
@@ -318,15 +317,14 @@ public class PlayerControler : MonoBehaviour
         }
        
         
-        if (collision.gameObject.tag == "Hazard")
+        if (collision.gameObject.tag == "Enemy")
         {
-            health--;
+            gameObject.SetActive(false);
+            DeathEvent.instance.EnableDeathScreen();
+            
         }
 
-        if (gameObject.tag == "Enemy")
-        {
-            health--;
-        }
+       
         
     }
     
